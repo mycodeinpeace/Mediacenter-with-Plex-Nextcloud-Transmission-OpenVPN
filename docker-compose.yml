@@ -63,7 +63,7 @@ services:
     links:
       - nextcloud-db
     volumes:
-      - ${ROOT_DATA_PATH}/data/nextcloud:/var/www/html
+      - ${ROOT_DATA_PATH}/nextcloud:/var/www/html
     environment:
       - NEXTCLOUD_ADMIN_USER=${NEXTCLOUD_ADMIN_USER}
       - NEXTCLOUD_ADMIN_PASSWORD=${NEXTCLOUD_ADMIN_PASSWORD}
@@ -98,16 +98,16 @@ services:
       - ADVERTISE_IP=${PLEX_ADVERTISE_IP}
     hostname: ${PLEX_HOSTNAME}
     volumes:
-      - ${ROOT_DATA_PATH}/data/plex/library:/config
-      - ${ROOT_DATA_PATH}/data/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/TVShows:/tv
-      - ${ROOT_DATA_PATH}/data/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/Movies:/movies
+      - ${ROOT_DATA_PATH}/plex/library:/config
+      - ${ROOT_DATA_PATH}/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/TVShows:/tv
+      - ${ROOT_DATA_PATH}/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/Movies:/movies
     restart: unless-stopped
   # Transmission with OpenVPN
   transmission-openvpn:
     cap_add:
     - NET_ADMIN
     volumes:
-    - '${ROOT_DATA_PATH}/data/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/Downloads:/data'
+    - '${ROOT_DATA_PATH}/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/Downloads:/data'
     - '${ROOT_CONFIG_PATH}/docker/transmission-config:/config'
     environment:
     - PUID=${PUID}

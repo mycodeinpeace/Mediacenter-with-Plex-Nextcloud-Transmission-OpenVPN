@@ -35,16 +35,16 @@ sudo mkdir -pv $1/docker/nginx-config/letsencrypt
 sudo mkdir -pv $1/docker/nginx-config/mysql
 # nextcloud
 sudo mkdir -pv $1/docker/nextcloud-config/mysql
-sudo mkdir -pv $2/data/nextcloud
+sudo mkdir -pv $2/nextcloud
 # plex
-sudo mkdir -pv $2/data/plex/library
-sudo mkdir -pv $2/data/plex/tvseries
-sudo mkdir -pv $2/data/plex/movies
+sudo mkdir -pv $2/plex/library
+sudo mkdir -pv $2/plex/tvseries
+sudo mkdir -pv $2/plex/movies
 
 # Set permissions
 echo "### Setting directory permissions... ###"
-sudo chmod -R 775 $2/data/
-sudo chown -R $(id -u):mediacenter $2/data/
+sudo chmod -R 775 $2/
+sudo chown -R $(id -u):mediacenter $2/
 sudo chown -R nextcloud:mediacenter $1/docker/nextcloud-config
 sudo chown -R ddclient:mediacenter $1/docker/ddclient-config
 sudo chown -R nginx:mediacenter $1/docker/nginx-config
@@ -92,21 +92,21 @@ FOLDER_NAME_FOR_DOCKERCOMPOSE=${PWD##*/} # to assign to a variable
 FOLDER_NAME_FOR_DOCKERCOMPOSE=${FOLDER_NAME_FOR_DOCKERCOMPOSE:-/} # to correct for the case where PWD=/
 
 echo "### Creating directories for Transmission... ###"
-sudo mkdir $2/data/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/Downloads
-sudo chown -R www-data $2/data/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/Downloads
+sudo mkdir $2/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/Downloads
+sudo chown -R www-data $2/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/Downloads
 
 echo "### Starting Transmission... ###"
 sudo docker-compose -f docker-compose.yml up -d transmission-openvpn
 sleep 5
-sudo chown -R www-data $2/data/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/Downloads
+sudo chown -R www-data $2/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/Downloads
 
 echo "### Syncing new folders to nextcloud... ###"
 sudo docker exec -ti --user www-data ${FOLDER_NAME_FOR_DOCKERCOMPOSE}_nextcloud_1 /var/www/html/occ files:scan --all
 
 echo "### Creating directories for Plex... ###"
-sudo mkdir $2/data/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/Movies
-sudo mkdir $2/data/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/TVShows
-sudo chown -R www-data $2/data/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files
+sudo mkdir $2/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/Movies
+sudo mkdir $2/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/TVShows
+sudo chown -R www-data $2/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files
 
 echo "### Syncing new folders to nextcloud... ###"
 sudo docker exec -ti --user www-data ${FOLDER_NAME_FOR_DOCKERCOMPOSE}_nextcloud_1 /var/www/html/occ files:scan --all
@@ -126,7 +126,7 @@ echo "### Creating Cron service to sync new files to nextcloud every 5 minutes..
 # Create the script file
 echo "#!/bin/bash" >> syncfileswithnextcloud.sh
 echo "" >> syncfileswithnextcloud.sh
-echo "sudo chown -R www-data $2/data/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/Downloads" >> syncfileswithnextcloud.sh
+echo "sudo chown -R www-data:www-data $2/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/Downloads" >> syncfileswithnextcloud.sh
 echo "sudo docker exec -i --user www-data ${FOLDER_NAME_FOR_DOCKERCOMPOSE}_nextcloud_1 /var/www/html/occ files:scan --all" >> syncfileswithnextcloud.sh
 sudo chmod +x syncfileswithnextcloud.sh
 
