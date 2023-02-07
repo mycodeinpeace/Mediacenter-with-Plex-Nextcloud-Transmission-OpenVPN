@@ -1,0 +1,134 @@
+services:
+  # ddclient for Dynamic DNS
+  ddclient:
+    image: lscr.io/linuxserver/ddclient:latest
+    container_name: ddclient
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ}
+    volumes:
+      - ${ROOT_CONFIG_PATH}/docker/ddclient-config:/config
+    restart: unless-stopped
+  # Nginx proxy manager
+  # https://hub.docker.com/r/jc21/nginx-proxy-manager
+  nginx-proxy-manager-app:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    ports:
+      # These ports are in format <host-port>:<container-port>
+      - '80:80' # Public HTTP Port
+      - '81:81' # Public HTTPS Port
+      - '443:443' # Admin Web Port
+    environment:
+      DB_MYSQL_HOST: "nginx-proxy-manager-db"
+      DB_MYSQL_PORT: 3306
+      DB_MYSQL_USER: ${NGINX_DB_MYSQL_USER}
+      DB_MYSQL_PASSWORD: ${NGINX_DB_MYSQL_PASSWORD}
+      DB_MYSQL_NAME: "npm"
+      # Uncomment this if IPv6 is not enabled on your host
+      # DISABLE_IPV6: 'true'
+    volumes:
+      - ${ROOT_CONFIG_PATH}/docker/nginx-config/data:/data
+      - ${ROOT_CONFIG_PATH}/docker/nginx-config/letsencrypt:/etc/letsencrypt
+    depends_on:
+      - nginx-proxy-manager-db
+  nginx-proxy-manager-db:
+    image: 'jc21/mariadb-aria:latest'
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${NGINX_MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: 'npm'
+      MYSQL_USER: ${NGINX_DB_MYSQL_USER}
+      MYSQL_PASSWORD: ${NGINX_DB_MYSQL_PASSWORD}
+    volumes:
+      - ${ROOT_CONFIG_PATH}/docker/nginx-config/mysql:/var/lib/mysql
+  # Nextcloud
+  # https://hub.docker.com/_/nextcloud
+  nextcloud-db:
+    image: mariadb:10.5
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    restart: always
+    volumes:
+      - ${ROOT_CONFIG_PATH}/docker/nextcloud-config/mysql:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${NEXTCLOUD_MYSQL_ROOT_PASSWORD}
+      - MYSQL_PASSWORD=${NEXTCLOUD_MYSQL_PASSWORD}
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+  nextcloud:
+    image: nextcloud
+    ports:
+      - 8181:80
+    links:
+      - nextcloud-db
+    volumes:
+      - ${ROOT_DATA_PATH}/data/nextcloud:/var/www/html
+    environment:
+      - NEXTCLOUD_ADMIN_USER=${NEXTCLOUD_ADMIN_USER}
+      - NEXTCLOUD_ADMIN_PASSWORD=${NEXTCLOUD_ADMIN_PASSWORD}
+      - NEXTCLOUD_TRUSTED_DOMAINS=${NEXTCLOUD_TRUSTED_DOMAINS}
+      - MYSQL_PASSWORD=${NEXTCLOUD_MYSQL_PASSWORD}
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_HOST=nextcloud-db
+    depends_on:
+      - nextcloud-db
+    restart: always
+  # Plex media center
+  plex:
+    image: lscr.io/linuxserver/plex:latest
+    container_name: plex
+    network_mode: bridge
+    ports:
+      - 32400:32400/tcp
+      - 8324:8324/tcp
+      - 32469:32469/tcp
+      - 1900:1900/udp
+      - 32410:32410/udp
+      - 32412:32412/udp
+      - 32413:32413/udp
+      - 32414:32414/udp
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - VERSION=docker
+      - PLEX_CLAIM=${PLEX_CLAIM}
+      - TZ=${TZ}
+      - ADVERTISE_IP=${PLEX_ADVERTISE_IP}
+    hostname: ${PLEX_HOSTNAME}
+    volumes:
+      - ${ROOT_DATA_PATH}/data/plex/library:/config
+      - ${ROOT_DATA_PATH}/data/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/TVShows:/tv
+      - ${ROOT_DATA_PATH}/data/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/Movies:/movies
+    restart: unless-stopped
+  # Transmission with OpenVPN
+  transmission-openvpn:
+    cap_add:
+    - NET_ADMIN
+    volumes:
+    - '${ROOT_DATA_PATH}/data/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/Downloads:/data'
+    - '${ROOT_CONFIG_PATH}/docker/transmission-config:/config'
+    environment:
+    - PUID=${PUID}
+    - PGID=${PGID}
+    - OPENVPN_PROVIDER=${OPENVPN_PROVIDER}
+    - OPENVPN_CONFIG=${OPENVPN_CONFIG}
+    - NORDVPN_COUNTRY=${NORDVPN_COUNTRY}
+    - NORDVPN_PROTOCOL=${NORDVPN_PROTOCOL}
+    - OPENVPN_USERNAME=${OPENVPN_USERNAME}
+    - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
+    - LOCAL_NETWORK=${LOCAL_NETWORK}
+    - TRANSMISSION_RPC_USERNAME=${TRANSMISSION_RPC_USERNAME}
+    - TRANSMISSION_RPC_PASSWORD=${TRANSMISSION_RPC_PASSWORD}
+    - TRANSMISSION_RPC_AUTHENTICATION_REQUIRED=true
+    - TRANSMISSION_WEB_UI=${TRANSMISSION_WEB_UI}
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+    ports:
+      - '9091:9091'
+    depends_on:
+      - nextcloud
+    image: haugene/transmission-openvpn
