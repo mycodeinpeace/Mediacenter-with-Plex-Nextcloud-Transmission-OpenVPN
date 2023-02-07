@@ -1,4 +1,4 @@
-# Mediacenter (Plex, Nextcloud, Transmission, VPN)
+# MediaCenter (Plex, Nextcloud, Transmission, OpenVPN)
 
 # Features
 
@@ -16,7 +16,7 @@
 | Plex | 32400 |
 | Nextcloud | 8181 |
 | Transmission | 9091 |
-| Nginx | 81 |
+| Nginx Proxy Manager | 81 |
 
 # Containers Used
 
@@ -66,21 +66,21 @@ Change `temp.env` file for the configurations.
 
 ## Global configurations
 
-### TZ
+### `TZ`
 
 If you're not sure what timezone you should fill in, you can look at the following list: <https://en.wikipedia.org/wiki/List_of_tz_database_time_zones> Use the column that says "TZ database name".
 
 ## Plex configurations
 
-### PLEX_HOSTNAME
+### `PLEX_HOSTNAME`
 
 Sets the hostname inside the docker container
 
-### PLEX_ADVERTISE_IP
+### `PLEX_ADVERTISE_IP`
 
 This variable defines the additional IPs on which the server may be found. This adds to the list where the server advertises that it can be found.
 
-### PLEX_CLAIM
+### `PLEX_CLAIM`
 
 The PleX claim token is used to connect your server to your account. It can be obtained at <https://www.plex.tv/claim/> and is **valid for 4 minutes** after generating the token.
 
@@ -88,29 +88,29 @@ The PleX claim token is used to connect your server to your account. It can be o
 
 I will use NordVPN configurations in this example however, it can be applied to other VPNs as well. Please see <http://haugene.github.io/docker-transmission-openvpn/config-options/> for configuration details.
 
-### OPENVPN_PROVIDER
+### `OPENVPN_PROVIDER`
 
 Sets the OpenVPN provider to use.
 
 Supported providers can be found here; <http://haugene.github.io/docker-transmission-openvpn/supported-providers/>
 
-### OPENVPN_CONFIG (Not required)
+### `OPENVPN_CONFIG` (Not required)
 
 <http://haugene.github.io/docker-transmission-openvpn/run-container/#2_it_is_not_mandatory_but_setting_openvpn_config_is_good>
 
-### NORDVPN_COUNTRY
+### `NORDVPN_COUNTRY`
 
 Two-character country code. See [here](https://api.nordvpn.com/v1/servers/countries) for the full list.
 
-### NORDVPN_CATEGORY
+### `NORDVPN_CATEGORY`
 
 Server type (P2P, Standard, etc). See [here](https://api.nordvpn.com/v1/servers/groups) for the full list. Use either title or identifier from the list.
 
-### NORDVPN_PROTOCOL
+### `NORDVPN_PROTOCOL`
 
 Either `tcp` or `udp`. (values identifier more available at <https://api.nordvpn.com/v1/technologies>)
 
-### OPENVPN_USERNAME
+### `OPENVPN_USERNAME`
 
 NordVPN service username.
 
@@ -118,7 +118,7 @@ You can find your NordVPN service credentials (username and password) through th
 
  ![](/api/attachments.redirect?id=9276e56a-34c9-4bf6-a303-846d56e54629)
 
-### OPENVPN_PASSWORD
+### `OPENVPN_PASSWORD`
 
 NordVPN service password.
 
@@ -126,7 +126,7 @@ You can find your NordVPN service credentials (username and password) through th
 
 ## Transmission configurations
 
-### LOCAL_NETWORK
+### `LOCAL_NETWORK`
 
 This is needed to access the WebUI. This is because the VPN is active, and since docker is running in a different ip range than your client the response to your request will be treated as "non-local" traffic and therefore be routed out through the VPN interface.
 
@@ -136,15 +136,15 @@ LOCAL_NETWORK property must be aimed at a subnet and not at an IP Address. For i
 LOCAL_NETWORK=192.168.0.0/24
 ```
 
-### TRANSMISSION_RPC_USERNAME
+### `TRANSMISSION_RPC_USERNAME`
 
 Username to access the WebUI. Be cautious of special characters in the username or password.
 
-### TRANSMISSION_RPC_PASSWORD
+### `TRANSMISSION_RPC_PASSWORD`
 
 Password to access the WebUI. Be cautious of special characters in the username or password. Escaping special characters could be an option, but the easiest solution is just to avoid them. Make the password longer instead.
 
-### TRANSMISSION_WEB_UI
+### `TRANSMISSION_WEB_UI`
 
 This container comes bundled with some alternative Web UIs:
 
@@ -158,15 +158,15 @@ To use one of them instead of the default Transmission UI you can set `TRANSMISS
 
 ## Nextcloud configurations
 
-### NEXTCLOUD_ADMIN_USER
+### `NEXTCLOUD_ADMIN_USER`
 
 Your admin username to access nextcloud webgui. This user will also be used to access the Plex libraries directly from the nextcloud.
 
-### NEXTCLOUD_ADMIN_PASSWORD
+### `NEXTCLOUD_ADMIN_PASSWORD`
 
 Your admin password to access nextcloud webgui. 
 
-### NEXTCLOUD_TRUSTED_DOMAINS
+### `NEXTCLOUD_TRUSTED_DOMAINS`
 
 One or more trusted domains can be set through environment variable
 
@@ -350,3 +350,17 @@ Access by going to `<ip_address>:<port>` in your browser.
 | Nextcloud | 8181 |
 | Transmission | 9091 |
 | Nginx | 81 |
+
+# Thanks to
+
+I’ve used various docker images that I am thankful for. Please show your love to the below repositories;
+
+[lscr.io/linuxserver/ddclient](https://github.com/linuxserver/docker-ddclient)
+
+[jc21/nginx-proxy-manager](https://github.com/NginxProxyManager/nginx-proxy-manager)
+
+[nextcloud](https://github.com/nextcloud/docker)
+
+[lscr.io/linuxserver/plex](https://github.com/linuxserver/docker-plex)
+
+[haugene/transmission-openvpn](https://github.com/haugene/docker-transmission-openvpn)
