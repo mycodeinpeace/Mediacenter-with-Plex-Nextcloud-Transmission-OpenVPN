@@ -77,13 +77,13 @@ echo "### Configuring DDclient... ###"
 sudo cp ddclient.conf $1/docker/ddclient-config
 
 echo "### Starting the services... ###"
-sudo docker-compose -f docker-compose.yml up -d ddclient
-sudo docker-compose -f docker-compose.yml up -d nginx-proxy-manager-db
-sudo docker-compose -f docker-compose.yml up -d nginx-proxy-manager-app
-sudo docker-compose -f docker-compose.yml up -d nextcloud-db
+sudo docker compose -f docker-compose.yml up -d ddclient
+sudo docker compose -f docker-compose.yml up -d nginx-proxy-manager-db
+sudo docker compose -f docker-compose.yml up -d nginx-proxy-manager-app
+sudo docker compose -f docker-compose.yml up -d nextcloud-db
 sleep 2 # Wait for database
 echo "### Starting the nextcloud... ###"
-sudo docker-compose -f docker-compose.yml up -d nextcloud
+sudo docker compose -f docker-compose.yml up -d nextcloud
 echo "### Waiting 2 mins for nextcloud to be up... ###"
 sleep 120 # Wait for nexcloud installation
 
@@ -96,12 +96,12 @@ sudo mkdir $2/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/Downloads
 sudo chown -R www-data $2/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/Downloads
 
 echo "### Starting Transmission... ###"
-sudo docker-compose -f docker-compose.yml up -d transmission-openvpn
+sudo docker compose -f docker-compose.yml up -d transmission-openvpn
 sleep 5
 sudo chown -R www-data $2/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/Downloads
 
 echo "### Syncing new folders to nextcloud... ###"
-sudo docker exec -ti --user www-data ${FOLDER_NAME_FOR_DOCKERCOMPOSE}_nextcloud_1 /var/www/html/occ files:scan --all
+sudo docker exec -ti --user www-data ${FOLDER_NAME_FOR_DOCKERCOMPOSE}-nextcloud-1 /var/www/html/occ files:scan --all
 
 echo "### Creating directories for Plex... ###"
 sudo mkdir $2/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/Movies
@@ -109,10 +109,10 @@ sudo mkdir $2/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/TVShows
 sudo chown -R www-data $2/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files
 
 echo "### Syncing new folders to nextcloud... ###"
-sudo docker exec -ti --user www-data ${FOLDER_NAME_FOR_DOCKERCOMPOSE}_nextcloud_1 /var/www/html/occ files:scan --all
+sudo docker exec -ti --user www-data ${FOLDER_NAME_FOR_DOCKERCOMPOSE}-nextcloud-1 /var/www/html/occ files:scan --all
 
 echo "### Starting Plex... ###"
-sudo docker-compose -f docker-compose.yml up -d plex
+sudo docker compose -f docker-compose.yml up -d plex
 
 # Cron job for Nextcloud to sync local files from Transmission
 echo "### Starting Cron service... ###"
@@ -127,7 +127,7 @@ echo "### Creating Cron service to sync new files to nextcloud every 5 minutes..
 echo "#!/bin/bash" >> syncfileswithnextcloud.sh
 echo "" >> syncfileswithnextcloud.sh
 echo "sudo chown -R www-data:www-data $2/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/Downloads" >> syncfileswithnextcloud.sh
-echo "sudo docker exec -i --user www-data ${FOLDER_NAME_FOR_DOCKERCOMPOSE}_nextcloud_1 /var/www/html/occ files:scan --all" >> syncfileswithnextcloud.sh
+echo "sudo docker exec -i --user www-data ${FOLDER_NAME_FOR_DOCKERCOMPOSE}-nextcloud-1 /var/www/html/occ files:scan --all" >> syncfileswithnextcloud.sh
 sudo chmod +x syncfileswithnextcloud.sh
 
 CURRENT_PATH=$(pwd)
