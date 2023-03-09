@@ -102,6 +102,19 @@ services:
       - ${ROOT_DATA_PATH}/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/TVShows:/tv
       - ${ROOT_DATA_PATH}/nextcloud/data/${NEXTCLOUD_ADMIN_USER}/files/Movies:/movies
     restart: unless-stopped
+  # Tautulli
+  # https://tautulli.com/
+  tautulli:
+    image: lscr.io/linuxserver/tautulli:latest
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${ROOT_DATA_PATH}/plex/library:/config
+    ports:
+      - 9161:8181
+    restart: unless-stopped
   # Transmission with OpenVPN
   transmission-openvpn:
     cap_add:

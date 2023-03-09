@@ -17,10 +17,13 @@
 | Nextcloud | 8181 |
 | Transmission | 9091 |
 | Nginx Proxy Manager | 81 |
+| Tautulli | 9161 |
 
 # Containers Used
 
 [Plex](https://www.plex.tv/) - Streaming media service and a client–server media player platform
+
+[Tautulli](https://tautulli.com/) - A 3rd party application that you can run alongside your Plex Media Server to monitor activity and track various statistics.
 
 [Nextcloud](https://nextcloud.com/) - Onprem cloud storage
 

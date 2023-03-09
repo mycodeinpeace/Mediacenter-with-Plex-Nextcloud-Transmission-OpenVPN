@@ -114,6 +114,9 @@ sudo docker exec -ti --user www-data ${FOLDER_NAME_FOR_DOCKERCOMPOSE}-nextcloud-
 echo "### Starting Plex... ###"
 sudo docker compose -f docker-compose.yml up -d plex
 
+echo "### Starting Tautulli... ###"
+sudo docker compose -f docker-compose.yml up -d tautulli
+
 # Cron job for Nextcloud to sync local files from Transmission
 echo "### Starting Cron service... ###"
 sudo service cron start
