@@ -353,6 +353,7 @@ Access by going to `<ip_address>:<port>` in your browser.
 | Nextcloud | 8181 |
 | Transmission | 9091 |
 | Nginx | 81 |
+| Tautulli | 9161 |
 
 # Thanks to
 
