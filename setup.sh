@@ -117,6 +117,10 @@ sudo docker compose -f docker-compose.yml up -d plex
 echo "### Starting Tautulli... ###"
 sudo docker compose -f docker-compose.yml up -d tautulli
 
+# Run watchtower
+echo "### Starting Watchtower... ###"
+sudo docker compose -f docker-compose.yml up -d watchtower
+
 # Cron job for Nextcloud to sync local files from Transmission
 echo "### Starting Cron service... ###"
 sudo service cron start
